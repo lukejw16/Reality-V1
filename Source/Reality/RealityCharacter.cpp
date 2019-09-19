@@ -87,12 +87,12 @@ ARealityCharacter::ARealityCharacter()
 	VR_Gun->bCastDynamicShadow = false;
 	VR_Gun->CastShadow = false;
 	VR_Gun->SetupAttachment(R_MotionController);
-	VR_Gun->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	
 
 	VR_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("VR_MuzzleLocation"));
 	VR_MuzzleLocation->SetupAttachment(VR_Gun);
 	VR_MuzzleLocation->SetRelativeLocation(FVector(0.000004, 53.999992, 10.000000));
-	VR_MuzzleLocation->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));		// Counteract the rotation of the VR gun model.
+			// Counteract the rotation of the VR gun model.
 
 	// Uncomment the following line to turn motion controllers on by default:
 	//bUsingMotionControllers = true;
@@ -261,12 +261,13 @@ void ARealityCharacter::Shoot()
 
 						//Set Spawn Collision Handling Override
 						FActorSpawnParameters ActorSpawnParams;
-						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
+						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+						FVector NewLocation = FVector(75.999992, 0.00000, 0.000000);
+						FVector NewLocation2 = FVector(-75.999992, 0.00000, 0.000000);
 						// spawn the projectile at the muzzle
 						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation + FVector(0.000004, 55.999992, 10.000000), SpawnRotation, ActorSpawnParams);
-						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation + FVector(0.000004, -55.999992, 10.000000), SpawnRotation, ActorSpawnParams);
+						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation + NewLocation, SpawnRotation, ActorSpawnParams);
+						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation + NewLocation2, SpawnRotation, ActorSpawnParams);
 						// Energy depleted 
 						FMath::Clamp(EnergyMeter -= 0.05f, 0.0f, 1.0f);
 
@@ -480,7 +481,9 @@ void ARealityCharacter::WeaponSelection()
 		FP_Gun_SMG->SetHiddenInGame(true);
 		FP_Gun_Shotgun->SetHiddenInGame(true);
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 10.000000), false, 0, ETeleportType::None);
-		FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules::KeepWorldTransform);
+		FP_MuzzleLocation->AddLocalRotation(FRotator(0.0f, -90.0f, 0.0f));
+		FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		
 		
 		break;
 	case SMG:
@@ -488,7 +491,8 @@ void ARealityCharacter::WeaponSelection()
 		FP_Gun->SetHiddenInGame(true);
 		FP_Gun_SMG->SetHiddenInGame(false);
 		FP_Gun_Shotgun->SetHiddenInGame(true);
-		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 10.000000), false, 0, ETeleportType::None);
+		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
+		
 		FP_MuzzleLocation->AttachToComponent(FP_Gun_SMG, FAttachmentTransformRules::KeepWorldTransform);
 		WeaponDelay = 0.3f;
 		
@@ -498,8 +502,9 @@ void ARealityCharacter::WeaponSelection()
 		FP_Gun->SetHiddenInGame(true);
 		FP_Gun_SMG->SetHiddenInGame(true);
 		FP_Gun_Shotgun->SetHiddenInGame(false);
-		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 10.000000), false, 0, ETeleportType::None);
-		FP_MuzzleLocation->AttachToComponent(FP_Gun_Shotgun, FAttachmentTransformRules::KeepWorldTransform);
+		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
+		
+		FP_MuzzleLocation->AttachToComponent(FP_Gun_Shotgun, FAttachmentTransformRules::KeepRelativeTransform);
 		
 		break;
 	default:
