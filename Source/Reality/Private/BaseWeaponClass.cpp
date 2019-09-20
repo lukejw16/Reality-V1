@@ -13,6 +13,9 @@ ABaseWeaponClass::ABaseWeaponClass()
 	RootComponent = Mesh;
 	Box->SetupAttachment(Mesh);
 	Mesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	PitchValue = 0.0f;
+	YawValue = 0.0f;
+	RollValue = 0.0f;
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +30,10 @@ void ABaseWeaponClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+	FQuat QuatRotation = FQuat(FRotator(PitchValue, YawValue, RollValue));
+
+	AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
 }
 
 void ABaseWeaponClass::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
