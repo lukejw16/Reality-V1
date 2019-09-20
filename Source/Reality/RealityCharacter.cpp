@@ -123,8 +123,8 @@ void ARealityCharacter::Tick(float DeltaSeconds)
 	
 	inAir = GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling;
 	
-	FString TheFloatString = FString::SanitizeFloat(GetCharacterMovement()->MaxWalkSpeed);
-	GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatString);
+	//FString TheFloatString = FString::SanitizeFloat(GetCharacterMovement()->MaxWalkSpeed);
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatString);
 	
 }
 
@@ -354,12 +354,18 @@ void ARealityCharacter::DepleteEnergyMeter()
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
 			SetActorLocation(SpawnLocation);
 			EnergyMeter = 1.0f;
-
-			TimerReset();
-			TimerReset();
-			TimerReset();
-			TimerReset();
-			TimerReset();
+			if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
+			{
+				int i;
+				for (i = 0; i < 2; i++)
+				{
+					TimerReset();
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Reset"));
+					GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+				}
+			}
+			
+			
 		}
 	}
 	
