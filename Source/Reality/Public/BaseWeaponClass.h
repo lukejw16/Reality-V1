@@ -50,4 +50,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		TEnumAsByte<WeaponsN> Weapon;
+
+	UPROPERTY(EditAnywhere, Category = "Rotation")
+		float PitchValue;
+
+	UPROPERTY(EditAnywhere, Category = "Rotation")
+		float YawValue;
+
+	UPROPERTY(EditAnywhere, Category = "Rotation")
+		float RollValue;
 };
