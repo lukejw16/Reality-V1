@@ -136,6 +136,8 @@ public:
 
 	int TimerCounter;
 
+	float Damage;
+
 	FTimerHandle ButtonReset;
 
 	FTimerHandle CanShootHandle;

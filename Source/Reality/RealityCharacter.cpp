@@ -178,6 +178,7 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
+						Damage = 40.0f;
 
 						bCanShoot = false;
 
@@ -218,8 +219,9 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
-
+						Damage = 20.0f;
 						
+						WeaponDelay = 0.1f;
 
 						const FRotator SpawnRotation = GetControlRotation();
 						// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
@@ -233,7 +235,7 @@ void ARealityCharacter::Shoot()
 						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 
 						// Energy depleted 
-						FMath::Clamp(EnergyMeter -= 0.05f, 0.0f, 1.0f);
+						FMath::Clamp(EnergyMeter -= 0.01f, 0.0f, 1.0f);
 
 						GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &ARealityCharacter::OnFire, WeaponDelay, true);
 						
@@ -260,6 +262,7 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
+						Damage = 30.0f;
 
 						bCanShoot = false;
 
@@ -504,7 +507,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 10.000000), false, 0, ETeleportType::None);
 		FP_MuzzleLocation->AddLocalRotation(FRotator(0.0f, -90.0f, 0.0f));
 		FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		
+		WeaponDelay = 1.0f;
 		
 		break;
 	case SMG:
@@ -515,7 +518,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
 		
 		FP_MuzzleLocation->AttachToComponent(FP_Gun_SMG, FAttachmentTransformRules::KeepWorldTransform);
-		WeaponDelay = 0.3f;
+		WeaponDelay = 0.001f;
 		
 		break;
 	case Shotgun:
@@ -526,7 +529,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
 		
 		FP_MuzzleLocation->AttachToComponent(FP_Gun_Shotgun, FAttachmentTransformRules::KeepRelativeTransform);
-		
+		WeaponDelay = 1.0f;
 		break;
 	default:
 		break;
