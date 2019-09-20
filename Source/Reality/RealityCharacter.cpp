@@ -264,8 +264,7 @@ void ARealityCharacter::Shoot()
 						bCanShoot = false;
 
 						const FRotator SpawnRotation = GetControlRotation();
-						const FRotator SpawnRotation_0 = FP_MuzzleLocation_S_0->GetComponentRotation();
-						const FRotator SpawnRotation_1 = FP_MuzzleLocation_S_1->GetComponentRotation();
+						
 						// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 						const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 						const FVector SpawnLocation_0 = ((FP_MuzzleLocation_S_0 != nullptr) ? FP_MuzzleLocation_S_0->GetComponentLocation() : GetActorLocation());
@@ -273,8 +272,7 @@ void ARealityCharacter::Shoot()
 						//Set Spawn Collision Handling Override
 						FActorSpawnParameters ActorSpawnParams;
 						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-						FVector NewLocation = FVector(75.999992, 0.00000, 0.000000);
-						FVector NewLocation2 = FVector(-75.999992, 0.00000, 0.000000);
+						
 						// spawn the projectile at the muzzle
 						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation_0, SpawnRotation, ActorSpawnParams);
