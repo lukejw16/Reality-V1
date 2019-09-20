@@ -115,6 +115,7 @@ ARealityCharacter::ARealityCharacter()
 	AllowedImpulse = false;
 	bSafeSpot = true;
 	bCanShoot = true;
+	bCanMove = true;
 }
 
 void ARealityCharacter::Tick(float DeltaSeconds)
@@ -332,6 +333,12 @@ void ARealityCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ARealityCharacter::LookUpAtRate);
 }
 
+void ARealityCharacter::CanMove()
+{
+	
+	bCanMove = true;
+}
+
 void ARealityCharacter::DepleteEnergyMeter()
 {
 	if (bSafeSpot == false)
@@ -353,8 +360,11 @@ void ARealityCharacter::DepleteEnergyMeter()
 
 		if (EnergyMeter <= 0.0f)
 		{
+			GetCharacterMovement()->StopMovementImmediately();
+			bCanMove = false;
 			GetWorldTimerManager().ClearTimer(EnergyHandler);
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
+			GetWorld()->GetTimerManager().SetTimer(CanMoveReset, this, &ARealityCharacter::CanMove, 1.0f, false);
 			SetActorLocation(SpawnLocation);
 			EnergyMeter = 1.0f;
 			if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
@@ -649,69 +659,76 @@ void ARealityCharacter::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AAc
 
 void ARealityCharacter::MoveForward(float Value)
 {
+	if (bCanMove == true)
+	{
+		ForwardValue = Value;
+
+
+		if (Value != 0.0f)
+		{
+			// add movement in that direction
+			AddMovementInput(GetActorForwardVector(), Value);
+		}
+		if (Value == 1.0f)
+		{
+			Forward = true;
+			Right = false;
+			Left = false;
+			Back = false;
+		}
+
+		if (Value == -1.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = false;
+			Back = true;
+		}
+
+		if (Value == 0.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = false;
+			Back = false;
+
+		}
+	}
+
 	
-
-	ForwardValue = Value;
-	
-	
-	if (Value != 0.0f)
-	{
-		// add movement in that direction
-		AddMovementInput(GetActorForwardVector(), Value);
-	}
-	if (Value == 1.0f)
-	{
-		Forward = true;
-		Right = false;
-		Left = false;
-		Back = false;
-	}
-
-	if (Value == -1.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = false;
-		Back = true;
-	}
-
-	if (Value == 0.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = false;
-		Back = false;
-
-	}
 }
 
 void ARealityCharacter::MoveRight(float Value)
 {
-	
-	
-	RightValue = Value;
-	
+	if (bCanMove == true)
+	{
+		RightValue = Value;
 
-	if (Value != 0.0f)
-	{
-		// add movement in that direction
-		AddMovementInput(GetActorRightVector(), Value);
-	}
-	if (Value == 1.0f)
-	{
-		Right = true;
-		Forward = false;
-		Left = false;
-		Back = false;
-	}
 
-	if (Value == -1.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = true;
-		Back = false;
+		if (Value != 0.0f)
+		{
+			// add movement in that direction
+			AddMovementInput(GetActorRightVector(), Value);
+		}
+		if (Value == 1.0f)
+		{
+			Right = true;
+			Forward = false;
+			Left = false;
+			Back = false;
+		}
+
+		if (Value == -1.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = true;
+			Back = false;
+		}
+
 	}
+	
+	
 }
 
 void ARealityCharacter::TurnAtRate(float Rate)

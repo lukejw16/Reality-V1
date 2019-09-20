@@ -56,6 +56,7 @@ void ARealitySurf::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor
 
 void ARealitySurf::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
+	Character = Cast<ARealityCharacter>(OtherActor);
 	if (Character)
 	{
 		Character->OverlappedWithRamp = false;
