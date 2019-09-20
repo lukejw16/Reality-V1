@@ -50,7 +50,12 @@ void ARealitySurf::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor
 		GetWorld()->GetTimerManager().SetTimer(Character->Handler, this, &ARealitySurf::StartGame, 0.5f, true);
 		Character->OverlappedWithRamp = true;
 	}
-	
+
+	Projectile = Cast<ARealityProjectile>(OtherActor);
+	if (Projectile)
+	{
+		Projectile->Destroy();
+	}
 	
 }
 

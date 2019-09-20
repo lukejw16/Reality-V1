@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "RealityCharacter.h"
+#include "RealityProjectile.h"
 #include "RealitySurf.generated.h"
 
 UCLASS()
@@ -42,6 +43,10 @@ public:
 		UBoxComponent* BoxCollision;
 	UPROPERTY()
 		ARealityCharacter* Character;
+
+	UPROPERTY()
+		ARealityProjectile* Projectile;
+
 	UPROPERTY()
 		bool bIsForward;
 	
