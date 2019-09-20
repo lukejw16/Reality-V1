@@ -354,6 +354,12 @@ void ARealityCharacter::DepleteEnergyMeter()
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
 			SetActorLocation(SpawnLocation);
 			EnergyMeter = 1.0f;
+
+			TimerReset();
+			TimerReset();
+			TimerReset();
+			TimerReset();
+			TimerReset();
 		}
 	}
 	
