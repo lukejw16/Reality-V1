@@ -552,10 +552,10 @@ void ARealityCharacter::TimerReset()
 	if (isOnFloor)
 	{
 		
-		FMath::Clamp(GetCharacterMovement()->AirControl -= 0.1f, 0.5f, 1.0f);
-		FMath::Clamp(GetCharacterMovement()->BrakingFrictionFactor += 0.4f, 0.0f, 2.0f);
-		FMath::Clamp(GetCharacterMovement()->GroundFriction += 1.6f, 0.0f, 8.0f);
-		FMath::Clamp(GetCharacterMovement()->GravityScale += 0.1f, 0.0f, 1.0f);
+		GetCharacterMovement()->AirControl = 0.5f;
+		GetCharacterMovement()->BrakingFrictionFactor = 2.0f;
+		GetCharacterMovement()->GroundFriction = 8.0f;
+		GetCharacterMovement()->GravityScale = 1.0f;
 		
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Reset"));
 		
@@ -598,15 +598,14 @@ void ARealityCharacter::BoolSwitch()
 			
 			TimerReset();
 			
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("OnFloor"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("OnFloor TimerCleared"));
 
-			if (TimerCounter >= 5)
-			{
-				GetWorldTimerManager().ClearTimer(Handler);
-				GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-				TimerCounter = 0;
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("TimerCleared"));
-			}
+			
+			GetWorldTimerManager().ClearTimer(Handler);
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+			
+			
+			
 		}
 		
 	

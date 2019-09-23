@@ -111,6 +111,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float Timer;
 
+	int loopint;
+
 	bool isOnFloor;
 
 	void Shoot();
