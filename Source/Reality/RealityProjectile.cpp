@@ -49,7 +49,12 @@ void ARealityProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 
 void ARealityProjectile::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 { 
-	
+	Turret = Cast<AMyActor>(OtherActor);
+	if (Turret)
+	{
+		Turret->Destroy();
+
+	}
 
 }
 

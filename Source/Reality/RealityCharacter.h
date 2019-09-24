@@ -136,6 +136,14 @@ public:
 
 	int TimerCounter;
 
+	bool bCanMove;
+
+	FTimerHandle CanMoveReset;
+
+	void CanMove();
+
+	float Damage;
+
 	FTimerHandle ButtonReset;
 
 	FTimerHandle CanShootHandle;

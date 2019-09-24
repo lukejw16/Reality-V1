@@ -115,6 +115,7 @@ ARealityCharacter::ARealityCharacter()
 	AllowedImpulse = false;
 	bSafeSpot = true;
 	bCanShoot = true;
+	bCanMove = true;
 }
 
 void ARealityCharacter::Tick(float DeltaSeconds)
@@ -178,6 +179,7 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
+						Damage = 40.0f;
 
 						bCanShoot = false;
 
@@ -218,8 +220,9 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
-
+						Damage = 20.0f;
 						
+						WeaponDelay = 0.1f;
 
 						const FRotator SpawnRotation = GetControlRotation();
 						// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
@@ -233,7 +236,7 @@ void ARealityCharacter::Shoot()
 						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 
 						// Energy depleted 
-						FMath::Clamp(EnergyMeter -= 0.05f, 0.0f, 1.0f);
+						FMath::Clamp(EnergyMeter -= 0.01f, 0.0f, 1.0f);
 
 						GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &ARealityCharacter::OnFire, WeaponDelay, true);
 						
@@ -260,6 +263,7 @@ void ARealityCharacter::Shoot()
 					}
 					else
 					{
+						Damage = 30.0f;
 
 						bCanShoot = false;
 
@@ -329,6 +333,12 @@ void ARealityCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ARealityCharacter::LookUpAtRate);
 }
 
+void ARealityCharacter::CanMove()
+{
+	
+	bCanMove = true;
+}
+
 void ARealityCharacter::DepleteEnergyMeter()
 {
 	if (bSafeSpot == false)
@@ -350,8 +360,11 @@ void ARealityCharacter::DepleteEnergyMeter()
 
 		if (EnergyMeter <= 0.0f)
 		{
+			GetCharacterMovement()->StopMovementImmediately();
+			bCanMove = false;
 			GetWorldTimerManager().ClearTimer(EnergyHandler);
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
+			GetWorld()->GetTimerManager().SetTimer(CanMoveReset, this, &ARealityCharacter::CanMove, 1.0f, false);
 			SetActorLocation(SpawnLocation);
 			EnergyMeter = 1.0f;
 			if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
@@ -504,7 +517,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 10.000000), false, 0, ETeleportType::None);
 		FP_MuzzleLocation->AddLocalRotation(FRotator(0.0f, -90.0f, 0.0f));
 		FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		
+		WeaponDelay = 1.0f;
 		
 		break;
 	case SMG:
@@ -515,7 +528,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
 		
 		FP_MuzzleLocation->AttachToComponent(FP_Gun_SMG, FAttachmentTransformRules::KeepWorldTransform);
-		WeaponDelay = 0.3f;
+		WeaponDelay = 0.001f;
 		
 		break;
 	case Shotgun:
@@ -526,7 +539,7 @@ void ARealityCharacter::WeaponSelection()
 		FP_MuzzleLocation->AddLocalOffset(FVector(0.000004, 0.999992, 0.000000), false, 0, ETeleportType::None);
 		
 		FP_MuzzleLocation->AttachToComponent(FP_Gun_Shotgun, FAttachmentTransformRules::KeepRelativeTransform);
-		
+		WeaponDelay = 1.0f;
 		break;
 	default:
 		break;
@@ -646,69 +659,76 @@ void ARealityCharacter::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AAc
 
 void ARealityCharacter::MoveForward(float Value)
 {
+	if (bCanMove == true)
+	{
+		ForwardValue = Value;
+
+
+		if (Value != 0.0f)
+		{
+			// add movement in that direction
+			AddMovementInput(GetActorForwardVector(), Value);
+		}
+		if (Value == 1.0f)
+		{
+			Forward = true;
+			Right = false;
+			Left = false;
+			Back = false;
+		}
+
+		if (Value == -1.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = false;
+			Back = true;
+		}
+
+		if (Value == 0.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = false;
+			Back = false;
+
+		}
+	}
+
 	
-
-	ForwardValue = Value;
-	
-	
-	if (Value != 0.0f)
-	{
-		// add movement in that direction
-		AddMovementInput(GetActorForwardVector(), Value);
-	}
-	if (Value == 1.0f)
-	{
-		Forward = true;
-		Right = false;
-		Left = false;
-		Back = false;
-	}
-
-	if (Value == -1.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = false;
-		Back = true;
-	}
-
-	if (Value == 0.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = false;
-		Back = false;
-
-	}
 }
 
 void ARealityCharacter::MoveRight(float Value)
 {
-	
-	
-	RightValue = Value;
-	
+	if (bCanMove == true)
+	{
+		RightValue = Value;
 
-	if (Value != 0.0f)
-	{
-		// add movement in that direction
-		AddMovementInput(GetActorRightVector(), Value);
-	}
-	if (Value == 1.0f)
-	{
-		Right = true;
-		Forward = false;
-		Left = false;
-		Back = false;
-	}
 
-	if (Value == -1.0f)
-	{
-		Forward = false;
-		Right = false;
-		Left = true;
-		Back = false;
+		if (Value != 0.0f)
+		{
+			// add movement in that direction
+			AddMovementInput(GetActorRightVector(), Value);
+		}
+		if (Value == 1.0f)
+		{
+			Right = true;
+			Forward = false;
+			Left = false;
+			Back = false;
+		}
+
+		if (Value == -1.0f)
+		{
+			Forward = false;
+			Right = false;
+			Left = true;
+			Back = false;
+		}
+
 	}
+	
+	
 }
 
 void ARealityCharacter::TurnAtRate(float Rate)

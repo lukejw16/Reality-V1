@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MyActor.h"
 #include "RealityProjectile.generated.h"
 
 UCLASS(config=Game)
@@ -32,6 +33,8 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+	UPROPERTY()
+		AMyActor* Turret;
 	
 protected:
 	virtual void BeginPlay() override;
