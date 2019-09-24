@@ -14,15 +14,22 @@ AMyActor::AMyActor()
 	FireLocation->SetupAttachment(Mesh);
 	
 	Delay = 1.0f;
+	
+	index = 0;
+	
+	
 }
 
 // Called when the game starts or when spawned
 void AMyActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	indexMax = NewLocation.Num();
+	indexMax--;
+	OrginalLocation = GetActorLocation();
 	GetWorld()->GetTimerManager().SetTimer(Timer, this, &AMyActor::Spawn, Delay, true);
 	}
+
 	
 
 // Called every frame
@@ -48,8 +55,60 @@ void AMyActor::Spawn()
 			
 			world->SpawnActor<AEnemyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire"));
+
+			
+			move();
+			
 		}
 
 	
+}
+
+void AMyActor::move()
+{
+	
+	
+	
+	switch (switchonint)
+	{
+		case 0:
+			
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Start"));
+			switchonint = 1;
+		break;
+		case 1:
+			
+			if (index >= indexMax)
+			{
+				switchonint = 2;
+			}
+			else
+			{
+				
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Increment"));
+				index++;
+				SetActorLocation(GetActorLocation() + NewLocation[index], false, nullptr, ETeleportType::None);
+			}
+		break;
+		case 2:
+			
+			if (index == 0)
+			{
+				switchonint = 0;
+				
+			}
+			else
+			{
+				SetActorLocation(GetActorLocation() - NewLocation[index], false, nullptr, ETeleportType::None);
+				
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Decrement"));
+				index--;
+				
+				
+			}
+		break;
+	default:
+		break;
+	}
 }
 

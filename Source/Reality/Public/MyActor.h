@@ -41,4 +41,21 @@ public:
 		float Delay;
 
 	void Spawn();
+
+	
+	void move();
+
+	UPROPERTY(EditAnywhere, Meta = (MakeEditWidget = true))
+		TArray<FVector> NewLocation;
+
+	FVector OrginalLocation;
+	
+	int index;
+
+	UPROPERTY(BlueprintReadWrite)
+	int indexMax;
+
+	bool increment;
+	int switchonint;
+	
 };
