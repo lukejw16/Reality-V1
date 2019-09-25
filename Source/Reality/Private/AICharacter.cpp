@@ -2,6 +2,7 @@
 
 #include "AICharacter.h"
 #include "EnemyProjectile.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -81,6 +82,13 @@ void AAICharacter::CheckEnemyHealth()
 	if (health <= 0)
 	{
 		Destroy();
+	}
+	else {
+	
+		AAI_Controller* Controller = Cast<AAI_Controller>(GetController());
+
+		Controller->Damaged = true;
+	
 	}
 }
 

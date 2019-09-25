@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AI_Controller.h"
 #include "AICharacter.generated.h"
 
 UCLASS()
@@ -40,6 +41,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AEnemyProjectile> ProjectileClass;
 
+	
 	FVector GunOffset;
 
 	float health = 1.0f;

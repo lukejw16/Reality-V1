@@ -53,9 +53,14 @@ public:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
 			float WeaponDelay = 0.2;
 			
+		bool Damaged;
 
 		void Shoot();
 
 		FTimerHandle Timer;
+
+		UFUNCTION()
+		virtual void TurnAround();
+		
 	
 };

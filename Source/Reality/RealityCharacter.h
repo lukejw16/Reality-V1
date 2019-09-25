@@ -27,12 +27,10 @@ class ARealityCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	class USkeletalMeshComponent* Mesh1P;
 
-
-		/** Gun mesh: 1st person view (seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* FP_Gun;
 
@@ -41,7 +39,7 @@ class ARealityCharacter : public ACharacter
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* FP_Gun_Shotgun;
-	/** Location on gun mesh where projectiles should spawn. */
+
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USceneComponent* FP_MuzzleLocation;
 
@@ -51,25 +49,12 @@ class ARealityCharacter : public ACharacter
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation_S_1;
 
-	/** Gun mesh: VR view (attached to the VR controller directly, no arm, just the actual gun) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* VR_Gun;
-
-	/** Location on VR gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* VR_MuzzleLocation;
-
-	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
 
-	/** Motion controller (right hand) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UMotionControllerComponent* R_MotionController;
-
-	/** Motion controller (left hand) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UMotionControllerComponent* L_MotionController;
+	UPROPERTY(VisibleDefaultsOnly, Category = Collision)
+		UBoxComponent* BoxCollision;
+	
 
 public:
 	ARealityCharacter();
@@ -80,36 +65,39 @@ protected:
 	virtual void BeginPlay();
 
 public:
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
 
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
 
-	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class ARealityProjectile> ProjectileClass;
 
-	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	class USoundBase* FireSound;
 
-	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
-	/** Whether to use motion controller location for aiming. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	uint32 bUsingMotionControllers : 1;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float Timer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float EnergyMeter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Level)
+		FName Level = "FirstpersonExampleMap";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		float WeaponDelay = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		TEnumAsByte<Weapons> WeaponType;
 
 	int loopint;
 
@@ -130,10 +118,7 @@ public:
 	float VelocityFloat;
 
 	FVector Velocity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float EnergyMeter;
-
+		
 	FVector SpawnLocation;
 
 	int TimerCounter;
@@ -157,25 +142,12 @@ public:
 	FTimerHandle Handler;
 
 	FTimerHandle EnergyHandler;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Level)
-	FName Level = "FirstpersonExampleMap";
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		//AKillBox* Kill;
-
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Collision)
-		UBoxComponent* BoxCollision;
-
+		
 	void DepleteEnergyMeter();
 
 	bool OverlappedWithRamp;
 
 	void DirectionImpulse();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float WeaponDelay = 0.5f;
 
 	float RightValue;
 
@@ -198,10 +170,7 @@ public:
 	void SpeedValue();
 
 	void SetCanShootTrue();
-
-	//weapon variables
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		TEnumAsByte<Weapons> WeaponType;
+	
 	int WeaponN;
 	
 
@@ -243,9 +212,8 @@ protected:
 		FVector Location;
 		bool bMoved;
 	};
-	void BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
-	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
-	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
+	
+	
 	TouchData	TouchItem;
 
 	
@@ -281,5 +249,8 @@ public:
 	//weapons variables 
 	void WeaponSelection();
 
+	void CheckPlayerHealth();
+
+	void Respawn();
 };
 

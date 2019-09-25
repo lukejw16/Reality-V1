@@ -44,6 +44,7 @@ void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AA
 	if (Character != nullptr)
 	{
 		Character->EnergyMeter -= Damage;
+		Character->CheckPlayerHealth();
 		Destroy();
 
 	}

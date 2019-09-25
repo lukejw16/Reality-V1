@@ -81,10 +81,11 @@ void AAI_Controller::Tick(float DeltaSeconds)
 		
 		MoveToActor(Player, 600.0f);
 
-		
-
 	}	
-	
+	if (Damaged == true)
+	{
+		TurnAround();
+	}
 }
 
 FRotator AAI_Controller::GetControlRotation() const
@@ -123,5 +124,17 @@ void AAI_Controller::Shoot()
 		
 	}
 }
+
+void AAI_Controller::TurnAround() 
+{
+		
+	ARealityCharacter* Player = Cast<ARealityCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	AAICharacter* Character = Cast<AAICharacter>(GetPawn());
+	
+	SetFocus(Player);
+	MoveToActor(Player, 600.0f);
+
+}
+
 
 
