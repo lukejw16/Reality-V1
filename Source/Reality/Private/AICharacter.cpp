@@ -40,6 +40,7 @@ void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 }
 
 // Called to bind functionality to input
@@ -72,6 +73,14 @@ void AAICharacter::FireWeapon()
 			
 
 		
+	}
+}
+
+void AAICharacter::CheckEnemyHealth()
+{
+	if (health <= 0)
+	{
+		Destroy();
 	}
 }
 

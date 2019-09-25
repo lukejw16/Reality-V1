@@ -41,4 +41,8 @@ public:
 		TSubclassOf<class AEnemyProjectile> ProjectileClass;
 
 	FVector GunOffset;
+
+	float health = 1.0f;
+
+	void CheckEnemyHealth();
 };

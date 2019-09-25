@@ -7,6 +7,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "EnemyProjectile.h"
+#include "Path.h"
 #include "MyActor.generated.h"
 
 UCLASS()
@@ -37,6 +38,9 @@ public:
 
 	FTimerHandle Timer;
 
+	FTimerHandle MoveTimer;
+
+
 	UPROPERTY(EditAnywhere)
 		float Delay;
 
@@ -57,5 +61,14 @@ public:
 
 	bool increment;
 	int switchonint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		APath* Path;
+
+	void RandomPathPoint();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bRandom;
 	
+	void SelectMovement();
 };

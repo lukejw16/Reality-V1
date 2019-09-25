@@ -56,6 +56,12 @@ void ARealityProjectile::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, 
 
 	}
 
+	EnemyCharacter = Cast<AAICharacter>(OtherActor);
+	if (EnemyCharacter != nullptr)
+	{
+		EnemyCharacter->health -= 0.3f;
+		EnemyCharacter->CheckEnemyHealth();
+	}
 }
 
 void ARealityProjectile::BeginPlay()
