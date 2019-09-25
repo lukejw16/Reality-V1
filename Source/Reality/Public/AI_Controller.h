@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "EnemyProjectile.h"
 #include "AI_Controller.generated.h"
 
 /**
@@ -29,7 +30,7 @@ public:
 			void OnPawnDetected(TArray<AActor*> DetectedPawn);
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-			float AISightRadius = 500.0f;
+			float AISightRadius = 1200.0f;
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 			float AISightAge = 5.0f;
@@ -48,5 +49,15 @@ public:
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 			float DistanceToPlayer = 0.0f;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
+			float WeaponDelay = 0.2;
+			
+
+		void Shoot();
+
+		
+
+		FTimerHandle Timer;
 	
 };

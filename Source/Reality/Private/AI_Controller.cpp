@@ -6,6 +6,7 @@
 #include "WayPoint.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "RealityCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
@@ -63,6 +64,7 @@ void AAI_Controller::Tick(float DeltaSeconds)
 	{
 		bPlayerIsDetected = false;
 		Character->GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+		GetWorld()->GetTimerManager().ClearTimer(Timer);
 	}
 
 	if (Character->NextWaypoint != nullptr && bPlayerIsDetected == false)
@@ -73,7 +75,11 @@ void AAI_Controller::Tick(float DeltaSeconds)
 	{
 		ARealityCharacter* Player = Cast<ARealityCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		Character->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-		MoveToActor(Player, 5.0f);
+		
+		
+		MoveToActor(Player, 600.0f);
+		
+		
 	}	
 	
 }
@@ -95,7 +101,24 @@ void AAI_Controller::OnPawnDetected(TArray<AActor*> DetectedPawn)
 		
 		DistanceToPlayer = GetPawn()->GetDistanceTo(DetectedPawn[i]);
 		UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceToPlayer);
+		GetWorld()->GetTimerManager().SetTimer(Timer, this, &AAI_Controller::Shoot, WeaponDelay, true);
 	}
 	
 	bPlayerIsDetected = true;
 }
+
+void AAI_Controller::Shoot()
+{
+	ARealityCharacter* Player = Cast<ARealityCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	
+	if (Player != nullptr)
+	{
+		AAICharacter* Character = Cast<AAICharacter>(GetPawn());
+		
+		Character->FireWeapon();
+
+		
+	}
+}
+
+

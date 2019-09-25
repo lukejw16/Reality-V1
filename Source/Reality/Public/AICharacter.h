@@ -28,5 +28,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AWayPoint* NextWaypoint;
+
+	void FireWeapon();
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+		class USkeletalMeshComponent* FP_Gun;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class USceneComponent* FP_MuzzleLocation;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AEnemyProjectile> ProjectileClass;
+
+	FVector GunOffset;
 };
