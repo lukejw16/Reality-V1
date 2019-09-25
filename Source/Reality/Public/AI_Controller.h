@@ -30,7 +30,7 @@ public:
 			void OnPawnDetected(TArray<AActor*> DetectedPawn);
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-			float AISightRadius = 1200.0f;
+			float AISightRadius = 900.0f;
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 			float AISightAge = 5.0f;
@@ -55,8 +55,6 @@ public:
 			
 
 		void Shoot();
-
-		
 
 		FTimerHandle Timer;
 	

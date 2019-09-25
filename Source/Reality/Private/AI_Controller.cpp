@@ -45,7 +45,7 @@ void AAI_Controller::BeginPlay()
 	}
 
 	
-
+	
 
 }
 
@@ -62,6 +62,7 @@ void AAI_Controller::Tick(float DeltaSeconds)
 
 	if (DistanceToPlayer > AISightRadius)
 	{
+		
 		bPlayerIsDetected = false;
 		Character->GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 		GetWorld()->GetTimerManager().ClearTimer(Timer);
@@ -70,6 +71,7 @@ void AAI_Controller::Tick(float DeltaSeconds)
 	if (Character->NextWaypoint != nullptr && bPlayerIsDetected == false)
 	{
 		MoveToActor(Character->NextWaypoint, 5.0f);
+		
 	}
 	else if (bPlayerIsDetected == true)
 	{
@@ -78,8 +80,9 @@ void AAI_Controller::Tick(float DeltaSeconds)
 		
 		
 		MoveToActor(Player, 600.0f);
+
 		
-		
+
 	}	
 	
 }
@@ -114,7 +117,7 @@ void AAI_Controller::Shoot()
 	if (Player != nullptr)
 	{
 		AAICharacter* Character = Cast<AAICharacter>(GetPawn());
-		
+		SetFocus(Player);
 		Character->FireWeapon();
 
 		
