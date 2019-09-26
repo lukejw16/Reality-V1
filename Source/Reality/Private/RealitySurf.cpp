@@ -16,14 +16,15 @@ ARealitySurf::ARealitySurf()
 	BoxCollision->SetupAttachment(SphereMesh);
 	RootComponent = SphereMesh;
 	bIsForward = false;
+	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ARealitySurf::OnOverlapBegin);
+	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ARealitySurf::OnOverlapEnd);
 }
+
 
 // Called when the game starts or when spawned
 void ARealitySurf::BeginPlay()
 {
 	Super::BeginPlay();
-	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ARealitySurf::OnOverlapBegin);
-	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ARealitySurf::OnOverlapEnd);
 }
 
 // Called every frame
@@ -37,8 +38,10 @@ void ARealitySurf::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor
 {
 	
 	Character = Cast<ARealityCharacter>(OtherActor);
-	if (Character)
+	if (Character != nullptr)
 	{
+		GetWorld()->GetTimerManager().SetTimer(JumpTimer, this, &ARealitySurf::PlayerTimerIncrease, 0.1f, true);
+
 		Character->JumpCurrentCount = 0;
 		Character->GetCharacterMovement()->AirControl = 1.0f;
 		FMath::Clamp(Character->GetCharacterMovement()->MaxWalkSpeed += 20.0f, 600.0f, 2000.0f);
@@ -47,12 +50,12 @@ void ARealitySurf::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor
 		Character->GetCharacterMovement()->GravityScale = 0.0f;
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 
-		GetWorld()->GetTimerManager().SetTimer(Character->Handler, this, &ARealitySurf::StartGame, 0.5f, true);
+		
 		Character->OverlappedWithRamp = true;
 	}
 
 	Projectile = Cast<ARealityProjectile>(OtherActor);
-	if (Projectile)
+	if (Projectile != nullptr)
 	{
 		Projectile->Destroy();
 	}
@@ -62,10 +65,12 @@ void ARealitySurf::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor
 void ARealitySurf::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
 	Character = Cast<ARealityCharacter>(OtherActor);
-	if (Character)
+	if (Character != nullptr)
 	{
 		Character->OverlappedWithRamp = false;
 		StartGame();
+		GetWorldTimerManager().ClearTimer(JumpTimer);
+		CheckEndOverlap();
 
 	}
 	
@@ -93,4 +98,24 @@ void ARealitySurf::StartGame()
 	}
 	
 	
+}
+
+void ARealitySurf::CheckEndOverlap()
+{
+	if (PlayerTime >= 1.0f && Character->GetCharacterMovement()->Velocity.X >= 300.0f)
+	{
+		const FVector UpDir = Character->GetActorForwardVector();
+
+		Character->GetCharacterMovement()->Velocity += UpDir * 600.0f;
+		PlayerTime = 0.0f;
+	}
+	else
+	{
+		PlayerTime = 0.0f;
+	}
+}
+
+void ARealitySurf::PlayerTimerIncrease()
+{
+	PlayerTime += 0.1;
 }

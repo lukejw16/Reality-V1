@@ -43,4 +43,8 @@ public:
 		ARealityCharacter* Character;
 
 	float Damage;
+
+	FTimerHandle Time;
+
+	void DestroySelf();
 };

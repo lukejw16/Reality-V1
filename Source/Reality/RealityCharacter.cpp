@@ -78,32 +78,6 @@ ARealityCharacter::ARealityCharacter()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
-	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
-
-	// Create VR Controllers.
-	R_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("R_MotionController"));
-	R_MotionController->Hand = EControllerHand::Right;
-	R_MotionController->SetupAttachment(RootComponent);
-	L_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("L_MotionController"));
-	L_MotionController->SetupAttachment(RootComponent);
-
-	// Create a gun and attach it to the right-hand VR controller.
-	// Create a gun mesh component
-	VR_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("VR_Gun"));
-	VR_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	VR_Gun->bCastDynamicShadow = false;
-	VR_Gun->CastShadow = false;
-	VR_Gun->SetupAttachment(R_MotionController);
-	
-
-	VR_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("VR_MuzzleLocation"));
-	VR_MuzzleLocation->SetupAttachment(VR_Gun);
-	VR_MuzzleLocation->SetRelativeLocation(FVector(0.000004, 53.999992, 10.000000));
-			// Counteract the rotation of the VR gun model.
-
-	// Uncomment the following line to turn motion controllers on by default:
-	//bUsingMotionControllers = true;
 
 	Timer = 1.5f;
 	
@@ -116,6 +90,8 @@ ARealityCharacter::ARealityCharacter()
 	bSafeSpot = true;
 	bCanShoot = true;
 	bCanMove = true;
+
+	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ARealityCharacter::OnOverlapEnd);
 }
 
 void ARealityCharacter::Tick(float DeltaSeconds)
@@ -123,16 +99,11 @@ void ARealityCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	
 	inAir = GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling;
-	
-	//FString TheFloatString = FString::SanitizeFloat(GetCharacterMovement()->MaxWalkSpeed);
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatString);
-	
 }
 
 
 void ARealityCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
 	
 	WeaponSelection();
@@ -141,22 +112,7 @@ void ARealityCharacter::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(SpeedTimer, this, &ARealityCharacter::SpeedValue, 0.5f, true);
 
-	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	//FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ARealityCharacter::OnOverlapEnd);
-
-	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
-	if (bUsingMotionControllers)
-	{
-		VR_Gun->SetHiddenInGame(false, true);
-		Mesh1P->SetHiddenInGame(true, true);
-	}
-	else
-	{
-		VR_Gun->SetHiddenInGame(true, true);
-		Mesh1P->SetHiddenInGame(false, true);
-	}
+	
 }
 
 void ARealityCharacter::Shoot()
@@ -171,14 +127,7 @@ void ARealityCharacter::Shoot()
 				UWorld* const World = GetWorld();
 				if (World != NULL)
 				{
-					if (bUsingMotionControllers)
-					{
-						const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-						const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-					}
-					else
-					{
+					
 						Damage = 40.0f;
 
 						bCanShoot = false;
@@ -199,7 +148,7 @@ void ARealityCharacter::Shoot()
 
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
 
-					}
+					
 				}
 			}
 		}
@@ -212,14 +161,8 @@ void ARealityCharacter::Shoot()
 				UWorld* const World = GetWorld();
 				if (World != NULL)
 				{
-					if (bUsingMotionControllers)
-					{
-						const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-						const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-					}
-					else
-					{
+					
+					
 						Damage = 20.0f;
 						
 						WeaponDelay = 0.1f;
@@ -241,7 +184,7 @@ void ARealityCharacter::Shoot()
 						GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &ARealityCharacter::OnFire, WeaponDelay, true);
 						
 
-					}
+					
 				}
 			}
 		}
@@ -255,14 +198,7 @@ void ARealityCharacter::Shoot()
 				UWorld* const World = GetWorld();
 				if (World != NULL)
 				{
-					if (bUsingMotionControllers)
-					{
-						const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-						const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-						World->SpawnActor<ARealityProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-					}
-					else
-					{
+					
 						Damage = 30.0f;
 
 						bCanShoot = false;
@@ -287,7 +223,7 @@ void ARealityCharacter::Shoot()
 						
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
 
-					}
+					
 				}
 			}
 		}
@@ -334,8 +270,7 @@ void ARealityCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 }
 
 void ARealityCharacter::CanMove()
-{
-	
+{	
 	bCanMove = true;
 }
 
@@ -360,24 +295,7 @@ void ARealityCharacter::DepleteEnergyMeter()
 
 		if (EnergyMeter <= 0.0f)
 		{
-			GetCharacterMovement()->StopMovementImmediately();
-			bCanMove = false;
-			GetWorldTimerManager().ClearTimer(EnergyHandler);
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
-			GetWorld()->GetTimerManager().SetTimer(CanMoveReset, this, &ARealityCharacter::CanMove, 1.0f, false);
-			SetActorLocation(SpawnLocation);
-			EnergyMeter = 1.0f;
-			if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
-			{
-				int i;
-				for (i = 0; i < 2; i++)
-				{
-					TimerReset();
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Reset"));
-					GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-				}
-			}
-			
+			Respawn();
 			
 		}
 	}
@@ -388,6 +306,7 @@ void ARealityCharacter::DirectionImpulse()
 {
 	const FVector RightDir = this->GetActorRightVector();
 	const FVector UpDir = this->GetActorForwardVector();
+	const FVector UpVec = this->GetActorUpVector();
 
 	if (RightValue == 1.0f && Right && Forward == false)
 	{
@@ -408,6 +327,10 @@ void ARealityCharacter::DirectionImpulse()
 	if (ForwardValue == -1.0f && Back && Right == false)
 	{
 		GetCharacterMovement()->Velocity += UpDir * -1000.0f;
+	}
+	if (inAir == true && Right == false && Left == false && Forward == false && Back == false)
+	{
+		GetCharacterMovement()->Velocity += UpVec * 1000.0f;
 	}
 	
 
@@ -434,7 +357,6 @@ void ARealityCharacter::SetCanShootTrue()
 
 void ARealityCharacter::OnFire()
 {
-	
 	Shoot();
 }
 
@@ -461,30 +383,7 @@ void ARealityCharacter::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void ARealityCharacter::BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	if (TouchItem.bIsPressed == true)
-	{
-		return;
-	}
-	TouchItem.bIsPressed = true;
-	TouchItem.FingerIndex = FingerIndex;
-	TouchItem.Location = Location;
-	TouchItem.bMoved = false;
-}
 
-void ARealityCharacter::EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	if (TouchItem.bIsPressed == false)
-	{
-		return;
-	}
-	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
-	{
-		OnFire();
-	}
-	TouchItem.bIsPressed = false;
-}
 
 void ARealityCharacter::Landed(const FHitResult & Hit)
 {
@@ -547,15 +446,45 @@ void ARealityCharacter::WeaponSelection()
 	
 }
 
+void ARealityCharacter::CheckPlayerHealth()
+{
+	if (EnergyMeter <= 0)
+	{
+		Respawn();
+	}
+}
+
+void ARealityCharacter::Respawn()
+{
+
+	GetCharacterMovement()->StopMovementImmediately();
+	bCanMove = false;
+	GetWorldTimerManager().ClearTimer(EnergyHandler);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
+	GetWorld()->GetTimerManager().SetTimer(CanMoveReset, this, &ARealityCharacter::CanMove, 1.0f, false);
+	SetActorLocation(SpawnLocation);
+	EnergyMeter = 1.0f;
+	if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
+	{
+		int i;
+		for (i = 0; i < 2; i++)
+		{
+			TimerReset();
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Reset"));
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		}
+	}
+}
+
 void ARealityCharacter::TimerReset()
 {
 	if (isOnFloor)
 	{
 		
-		FMath::Clamp(GetCharacterMovement()->AirControl -= 0.1f, 0.5f, 1.0f);
-		FMath::Clamp(GetCharacterMovement()->BrakingFrictionFactor += 0.4f, 0.0f, 2.0f);
-		FMath::Clamp(GetCharacterMovement()->GroundFriction += 1.6f, 0.0f, 8.0f);
-		FMath::Clamp(GetCharacterMovement()->GravityScale += 0.1f, 0.0f, 1.0f);
+		GetCharacterMovement()->AirControl = 0.5f;
+		GetCharacterMovement()->BrakingFrictionFactor = 2.0f;
+		GetCharacterMovement()->GroundFriction = 8.0f;
+		GetCharacterMovement()->GravityScale = 1.0f;
 		
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Reset"));
 		
@@ -598,15 +527,14 @@ void ARealityCharacter::BoolSwitch()
 			
 			TimerReset();
 			
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("OnFloor"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("OnFloor TimerCleared"));
 
-			if (TimerCounter >= 5)
-			{
-				GetWorldTimerManager().ClearTimer(Handler);
-				GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-				TimerCounter = 0;
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("TimerCleared"));
-			}
+			
+			GetWorldTimerManager().ClearTimer(Handler);
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+			
+			
+			
 		}
 		
 	
@@ -619,43 +547,7 @@ void ARealityCharacter::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AAc
 
 
 
-//Commenting this section out to be consistent with FPS BP template.
-//This allows the user to turn without using the right virtual joystick
 
-//void ARealityCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
-//{
-//	if ((TouchItem.bIsPressed == true) && (TouchItem.FingerIndex == FingerIndex))
-//	{
-//		if (TouchItem.bIsPressed)
-//		{
-//			if (GetWorld() != nullptr)
-//			{
-//				UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
-//				if (ViewportClient != nullptr)
-//				{
-//					FVector MoveDelta = Location - TouchItem.Location;
-//					FVector2D ScreenSize;
-//					ViewportClient->GetViewportSize(ScreenSize);
-//					FVector2D ScaledDelta = FVector2D(MoveDelta.X, MoveDelta.Y) / ScreenSize;
-//					if (FMath::Abs(ScaledDelta.X) >= 4.0 / ScreenSize.X)
-//					{
-//						TouchItem.bMoved = true;
-//						float Value = ScaledDelta.X * BaseTurnRate;
-//						AddControllerYawInput(Value);
-//					}
-//					if (FMath::Abs(ScaledDelta.Y) >= 4.0 / ScreenSize.Y)
-//					{
-//						TouchItem.bMoved = true;
-//						float Value = ScaledDelta.Y * BaseTurnRate;
-//						AddControllerPitchInput(Value);
-//					}
-//					TouchItem.Location = Location;
-//				}
-//				TouchItem.Location = Location;
-//			}
-//		}
-//	}
-//}
 
 void ARealityCharacter::MoveForward(float Value)
 {
@@ -747,8 +639,7 @@ bool ARealityCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerI
 {
 	if (FPlatformMisc::SupportsTouchInput() || GetDefault<UInputSettings>()->bUseMouseForTouch)
 	{
-		PlayerInputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ARealityCharacter::BeginTouch);
-		PlayerInputComponent->BindTouch(EInputEvent::IE_Released, this, &ARealityCharacter::EndTouch);
+		
 
 		//Commenting this out to be more consistent with FPS BP template.
 		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ARealityCharacter::TouchUpdate);
