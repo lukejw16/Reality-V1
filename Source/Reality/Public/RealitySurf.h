@@ -21,6 +21,7 @@ public:
 	ARealitySurf();
 
 	FTimerHandle Handler;
+	FTimerHandle JumpTimer;
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,8 +50,14 @@ public:
 
 	UPROPERTY()
 		bool bIsForward;
+
+	float PlayerTime;
 	
 	void ResetHandle();
 
 	void StartGame();
+
+	void CheckEndOverlap();
+
+	void PlayerTimerIncrease();
 };
