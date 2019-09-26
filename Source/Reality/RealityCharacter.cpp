@@ -306,6 +306,7 @@ void ARealityCharacter::DirectionImpulse()
 {
 	const FVector RightDir = this->GetActorRightVector();
 	const FVector UpDir = this->GetActorForwardVector();
+	const FVector UpVec = this->GetActorUpVector();
 
 	if (RightValue == 1.0f && Right && Forward == false)
 	{
@@ -326,6 +327,10 @@ void ARealityCharacter::DirectionImpulse()
 	if (ForwardValue == -1.0f && Back && Right == false)
 	{
 		GetCharacterMovement()->Velocity += UpDir * -1000.0f;
+	}
+	if (inAir == true && Right == false && Left == false && Forward == false && Back == false)
+	{
+		GetCharacterMovement()->Velocity += UpVec * 1000.0f;
 	}
 	
 

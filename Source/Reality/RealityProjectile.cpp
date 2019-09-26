@@ -43,7 +43,9 @@ void ARealityProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 
 		Destroy();
 	}
-	
+	if (OtherActor != nullptr) {
+		Destroy();
+	}
 	
 }
 

@@ -29,6 +29,7 @@ void AEnemyProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AEnemyProjectile::OnOverlapBegin);
+	GetWorld()->GetTimerManager().SetTimer(Time, this, &AEnemyProjectile::DestroySelf, 1.2f, false);
 }
 
 // Called every frame
@@ -48,6 +49,19 @@ void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AA
 		Destroy();
 
 	}
+
+	if (OtherActor != nullptr) 
+	{
+		Destroy();
+	}
 	
 }
+
+void AEnemyProjectile::DestroySelf()
+{
+	GetWorldTimerManager().ClearTimer(Time);
+	Destroy();
+}
+
+
 
