@@ -9,9 +9,12 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "AICharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Math/Vector.h"
 #include "MotionControllerComponent.h"
+
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -78,7 +81,8 @@ ARealityCharacter::ARealityCharacter()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 
-
+	
+	
 	Timer = 1.5f;
 	
 	WalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
@@ -108,10 +112,15 @@ void ARealityCharacter::BeginPlay()
 	
 	WeaponSelection();
 
+	StartGame();
+
 	GetWorld()->GetTimerManager().SetTimer(HandleTick, this, &ARealityCharacter::DepleteEnergyMeter, 0.2f, true);
 
 	GetWorld()->GetTimerManager().SetTimer(SpeedTimer, this, &ARealityCharacter::SpeedValue, 0.5f, true);
 
+	GetWorld()->GetTimerManager().SetTimer(HandleTemp, this, &ARealityCharacter::changeRadius, 0.02f, true);
+
+	
 	
 }
 
@@ -148,6 +157,55 @@ void ARealityCharacter::Shoot()
 
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
 
+						//linetrace logic 
+
+						FHitResult Outhit;
+						FHitResult SecondHit;
+
+						int32 randomint = FMath::RandRange(-200, 200);
+
+						FVector Start = FP_MuzzleLocation->GetComponentLocation();
+						
+
+						FVector ForwardVector = FirstPersonCameraComponent->GetForwardVector();
+						FVector End = ((ForwardVector * 10000)+ Start);
+						FCollisionQueryParams CollisionParams;
+						CollisionParams.AddIgnoredActor(this);
+						CollisionParams.bTraceComplex = true;
+						
+
+						DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+						DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1, 0, 1);
+
+						bool isHit = World->LineTraceSingleByObjectType(Outhit, Start, End, ECC_Pawn, CollisionParams);
+
+						bool isHitStatic = World->LineTraceSingleByObjectType(SecondHit, Start, End, ECC_WorldStatic, CollisionParams);
+						
+						if (isHit == true)
+						{
+							if (Outhit.GetActor())
+							{
+								AAICharacter* Person = Cast<AAICharacter>(Outhit.Actor.Get());
+								GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Actor HIT: %s"), *Outhit.GetActor()->GetName()));
+
+								if (Person)
+								{
+									if (GEngine)
+									{
+										GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("GOT HIT: %s"), *Outhit.GetActor()->GetName()));
+									}
+								}
+							}
+						}
+
+						if (isHitStatic)
+						{
+							if (SecondHit.GetActor())
+							{
+								GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Actor HIT: %s"), *SecondHit.GetActor()->GetName()));
+							}
+
+						}
 					
 				}
 			}
@@ -183,7 +241,9 @@ void ARealityCharacter::Shoot()
 
 						GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &ARealityCharacter::OnFire, WeaponDelay, true);
 						
+						
 
+						
 					
 				}
 			}
@@ -223,6 +283,28 @@ void ARealityCharacter::Shoot()
 						
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
 
+						FHitResult Outhit;
+
+						int32 randomint = FMath::RandRange(500, 1000);
+
+						FVector Start = FP_MuzzleLocation->GetComponentLocation();
+											
+
+						FVector ForwardVector = GetActorForwardVector();
+						FVector End = ((ForwardVector * randomint) + Start);
+						FCollisionQueryParams CollisionParams;
+
+						DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 5);
+						
+						bool isHit = ActorLineTraceSingle(Outhit, Start, End, ECC_Pawn, CollisionParams);
+
+						if (isHit == true)
+						{
+							if (GEngine)
+							{
+								GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("GOT HIT: %s"));
+							}
+						}
 					
 				}
 			}
@@ -474,6 +556,36 @@ void ARealityCharacter::Respawn()
 			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		}
 	}
+}
+
+void ARealityCharacter::changeRadius()
+{
+	if (Radius >= 2000)
+	{
+		GetWorldTimerManager().ClearTimer(HandleTemp);
+	}
+	else
+	{
+		DynMaterial->SetScalarParameterValue(FName("Radius"), Radius += 5);
+
+		FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
+
+	}
+	
+}
+
+void ARealityCharacter::StartGame()
+{
+	FLinearColor Color;
+	Color.R = 0;
+	Color.G = 1;
+	Color.B = 0;
+	Color.A = 1;
+
+	DynMaterial = UMaterialInstanceDynamic::Create(Material, nullptr, FName(TEXT("Base Material Dynamic")));
+	DynMaterial->SetScalarParameterValue(FName("Radius"), 0);
+
+	FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
 }
 
 void ARealityCharacter::TimerReset()

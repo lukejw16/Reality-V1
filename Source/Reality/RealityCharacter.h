@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/DecalComponent.h"
 #include "RealityCharacter.generated.h"
 
 class UInputComponent;
@@ -98,6 +99,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		TEnumAsByte<Weapons> WeaponType;
+
+	UPROPERTY(EditAnywhere)
+		UMaterialInterface* Material;
+
+
 
 	int loopint;
 
@@ -252,5 +258,18 @@ public:
 	void CheckPlayerHealth();
 
 	void Respawn();
+
+	float Radius;
+
+	void StartGame();
+
+	void changeRadius();
+
+	UMaterialInstanceDynamic* DynMaterial;
+
+	UPROPERTY(EditAnywhere)
+	UDecalComponent* Decal;
+
+	FTimerHandle HandleTemp;
 };
 
