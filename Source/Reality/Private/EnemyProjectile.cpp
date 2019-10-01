@@ -21,7 +21,7 @@ AEnemyProjectile::AEnemyProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
-	Damage = 0.5f;
+	Damage = 0.1f;
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +29,7 @@ void AEnemyProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AEnemyProjectile::OnOverlapBegin);
+	GetWorld()->GetTimerManager().SetTimer(Time, this, &AEnemyProjectile::DestroySelf, 1.2f, false);
 }
 
 // Called every frame
@@ -41,11 +42,26 @@ void AEnemyProjectile::Tick(float DeltaTime)
 void AEnemyProjectile::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	Character = Cast<ARealityCharacter>(OtherActor);
-	if (Character)
+	if (Character != nullptr)
 	{
 		Character->EnergyMeter -= Damage;
+		Character->CheckPlayerHealth();
 		Destroy();
 
 	}
+
+	if (OtherActor != nullptr) 
+	{
+		Destroy();
+	}
+	
 }
+
+void AEnemyProjectile::DestroySelf()
+{
+	GetWorldTimerManager().ClearTimer(Time);
+	Destroy();
+}
+
+
 

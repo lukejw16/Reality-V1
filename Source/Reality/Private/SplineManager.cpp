@@ -61,7 +61,7 @@ void ASplineManager::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AAct
 {
 	
 	Character = Cast<ARealityCharacter>(OtherActor);
-	if (Character)
+	if (Character != nullptr)
 	{
 		GetWorld()->GetTimerManager().SetTimer(Handler, this, &ASplineManager::AddToSpline, 0.001f, true);
 	}

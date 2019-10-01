@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MyActor.h"
+#include "AICharacter.h"
 #include "RealityProjectile.generated.h"
 
 UCLASS(config=Game)
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY()
 		AMyActor* Turret;
+
+	UPROPERTY()
+		AAICharacter* EnemyCharacter;
 	
 protected:
 	virtual void BeginPlay() override;
