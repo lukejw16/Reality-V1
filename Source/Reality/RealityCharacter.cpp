@@ -317,6 +317,20 @@ void ARealityCharacter::Shoot()
 	}
 }
 
+void ARealityCharacter::JumpMeter()
+{
+	if (FJumpMeter <= 1.0f)
+	{
+		FJumpMeter += 0.1f;
+	}
+	if (FJumpMeter >= 1.0f)
+	{
+		GetWorldTimerManager().ClearTimer(JumpMeterHandle);
+		FJumpMeter = 0.0f;
+	}
+	
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -478,7 +492,7 @@ void ARealityCharacter::Landed(const FHitResult & Hit)
 
 	GetWorld()->GetTimerManager().SetTimer(Handler, this, &ARealityCharacter::BoolSwitch, 0.5f, true);
 
-	
+	GetWorld()->GetTimerManager().SetTimer(JumpMeterHandle, this, &ARealityCharacter::JumpMeter, 0.05f, true);
 	
 	if (GEngine)
 	{

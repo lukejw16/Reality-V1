@@ -91,6 +91,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float EnergyMeter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float FJumpMeter;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Level)
 		FName Level = "FirstpersonExampleMap";
 
@@ -111,6 +114,8 @@ public:
 	bool isOnFloor;
 
 	void Shoot();
+
+	void JumpMeter();
 
 	bool bSafeSpot;
 
@@ -149,6 +154,8 @@ public:
 	FTimerHandle Handler;
 
 	FTimerHandle EnergyHandler;
+
+	FTimerHandle JumpMeterHandle;
 		
 	void DepleteEnergyMeter();
 
