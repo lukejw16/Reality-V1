@@ -271,5 +271,7 @@ public:
 	UDecalComponent* Decal;
 
 	FTimerHandle HandleTemp;
+
+	FLinearColor Color;
 };
 

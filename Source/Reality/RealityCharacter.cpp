@@ -563,6 +563,13 @@ void ARealityCharacter::changeRadius()
 	if (Radius >= 2000)
 	{
 		GetWorldTimerManager().ClearTimer(HandleTemp);
+		
+		Color.R = 0;
+		Color.G = 1;
+		Color.B = 0;
+		Color.A = 1;
+
+		DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
 	}
 	else
 	{
@@ -576,13 +583,14 @@ void ARealityCharacter::changeRadius()
 
 void ARealityCharacter::StartGame()
 {
-	FLinearColor Color;
+	
 	Color.R = 0;
-	Color.G = 1;
+	Color.G = 0;
 	Color.B = 0;
-	Color.A = 1;
+	Color.A = 0;
 
 	DynMaterial = UMaterialInstanceDynamic::Create(Material, nullptr, FName(TEXT("Base Material Dynamic")));
+	DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
 	DynMaterial->SetScalarParameterValue(FName("Radius"), 0);
 
 	FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
