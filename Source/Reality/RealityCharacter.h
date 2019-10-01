@@ -103,7 +103,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		UMaterialInterface* Material;
 
-
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UCameraShake> MyShake;
 
 	int loopint;
 
@@ -273,5 +274,8 @@ public:
 	FTimerHandle HandleTemp;
 
 	FLinearColor Color;
+
+	float lerp;
+	float Afloat;
 };
 

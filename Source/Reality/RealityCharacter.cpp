@@ -9,6 +9,7 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "AICharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Math/Vector.h"
@@ -473,6 +474,8 @@ void ARealityCharacter::Landed(const FHitResult & Hit)
 	const FVector disVec = Hit.ImpactPoint;
 	isOnFloor = true;
 
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(MyShake, 1.0f);
+
 	GetWorld()->GetTimerManager().SetTimer(Handler, this, &ARealityCharacter::BoolSwitch, 0.5f, true);
 
 	
@@ -562,14 +565,8 @@ void ARealityCharacter::changeRadius()
 {
 	if (Radius >= 2000)
 	{
-		GetWorldTimerManager().ClearTimer(HandleTemp);
 		
-		Color.R = 0;
-		Color.G = 1;
-		Color.B = 0;
-		Color.A = 1;
-
-		DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
+		GetWorldTimerManager().ClearTimer(HandleTemp);
 	}
 	else
 	{
@@ -577,20 +574,18 @@ void ARealityCharacter::changeRadius()
 
 		FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
 
+		
+
+	
+
 	}
+	
 	
 }
 
 void ARealityCharacter::StartGame()
 {
-	
-	Color.R = 0;
-	Color.G = 0;
-	Color.B = 0;
-	Color.A = 0;
-
 	DynMaterial = UMaterialInstanceDynamic::Create(Material, nullptr, FName(TEXT("Base Material Dynamic")));
-	DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
 	DynMaterial->SetScalarParameterValue(FName("Radius"), 0);
 
 	FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
