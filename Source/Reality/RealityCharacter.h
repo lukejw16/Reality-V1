@@ -83,6 +83,16 @@ public:
 	class USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* GunShot;
+
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* LandSound;
+
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -90,6 +100,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float EnergyMeter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float FJumpMeter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Level)
 		FName Level = "FirstpersonExampleMap";
@@ -103,13 +116,20 @@ public:
 	UPROPERTY(EditAnywhere)
 		UMaterialInterface* Material;
 
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UCameraShake> MyShake;
 
+	void SaveGame();
+
+	void LoadGame();
 
 	int loopint;
 
 	bool isOnFloor;
 
 	void Shoot();
+
+	void JumpMeter();
 
 	bool bSafeSpot;
 
@@ -148,6 +168,8 @@ public:
 	FTimerHandle Handler;
 
 	FTimerHandle EnergyHandler;
+
+	FTimerHandle JumpMeterHandle;
 		
 	void DepleteEnergyMeter();
 
@@ -162,6 +184,8 @@ public:
 	bool Forward;
 
 	FTimerHandle ShootTimer;
+
+	FTimerHandle FOVTimer;
 
 	bool Right;
 
@@ -179,6 +203,11 @@ public:
 	
 	int WeaponN;
 	
+	void ChangeFieldofView();
+
+	bool Reverse;
+
+	bool stop;
 
 protected:
 	
@@ -273,5 +302,15 @@ public:
 	FTimerHandle HandleTemp;
 
 	FLinearColor Color;
+
+	float lerp;
+	float Afloat;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> wMainMenu;
+
+	UUserWidget* MyMainMenu;
+
+	void ShowScore();
 };
 

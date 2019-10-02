@@ -11,8 +11,22 @@ class ARealityGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
 	ARealityGameMode();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Seconds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Minutes;
+
+	FTimerHandle PlayerTime;
+
+	void PlayerTimer();
 };
 
 

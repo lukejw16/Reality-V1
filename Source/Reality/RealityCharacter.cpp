@@ -9,11 +9,14 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "AICharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Math/Vector.h"
+#include "MySaveGame.h"
+#include "RealityGameMode.h"
 #include "MotionControllerComponent.h"
-
+#include "Blueprint/UserWidget.h"
 #include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -40,7 +43,7 @@ ARealityCharacter::ARealityCharacter()
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
-
+	
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
@@ -124,6 +127,29 @@ void ARealityCharacter::BeginPlay()
 	
 }
 
+void ARealityCharacter::SaveGame()
+{
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	ARealityGameMode* GameMode = Cast<ARealityGameMode>(GetWorld()->GetAuthGameMode());
+	SaveGameInstance->Minutes = GameMode->Minutes;
+	SaveGameInstance->Seconds = GameMode->Seconds;
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, TEXT("Game Slot Saved"));
+}
+
+void ARealityCharacter::LoadGame()
+{
+	UMySaveGame* SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	ARealityGameMode* GameMode = Cast<ARealityGameMode>(GetWorld()->GetAuthGameMode());
+	SaveGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
+	
+	GameMode->Minutes = SaveGameInstance->Minutes;
+	GameMode->Seconds = SaveGameInstance->Seconds;
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, TEXT("Game Slot Loaded"));
+}
+
 void ARealityCharacter::Shoot()
 {
 	switch (WeaponType)
@@ -156,6 +182,12 @@ void ARealityCharacter::Shoot()
 						FMath::Clamp(EnergyMeter -= 0.1f, 0.0f, 1.0f);
 
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
+					
+						if (FireSound != nullptr)
+						{
+							UGameplayStatics::PlaySound2D(this, GunShot, 1.0f, 1.0f, 0.0f, nullptr, nullptr);
+						}
+						
 
 						//linetrace logic 
 
@@ -242,7 +274,10 @@ void ARealityCharacter::Shoot()
 						GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &ARealityCharacter::OnFire, WeaponDelay, true);
 						
 						
-
+						if (FireSound != nullptr)
+						{
+							UGameplayStatics::PlaySound2D(this, GunShot, 1.0f, 1.0f, 0.0f, nullptr, nullptr);
+						}
 						
 					
 				}
@@ -280,6 +315,10 @@ void ARealityCharacter::Shoot()
 						// Energy depleted 
 						FMath::Clamp(EnergyMeter -= 0.05f, 0.0f, 1.0f);
 
+						if (FireSound != nullptr)
+						{
+							UGameplayStatics::PlaySound2D(this, GunShot, 1.0f, 1.0f, 0.0f, nullptr, nullptr);
+						}
 						
 						GetWorld()->GetTimerManager().SetTimer(CanShootHandle, this, &ARealityCharacter::SetCanShootTrue, WeaponDelay, false);
 
@@ -314,6 +353,20 @@ void ARealityCharacter::Shoot()
 	default:
 		break;
 	}
+}
+
+void ARealityCharacter::JumpMeter()
+{
+	if (FJumpMeter <= 1.0f)
+	{
+		FJumpMeter += 0.1f;
+	}
+	if (FJumpMeter >= 1.0f)
+	{
+		GetWorldTimerManager().ClearTimer(JumpMeterHandle);
+		FJumpMeter = 0.0f;
+	}
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -437,6 +490,31 @@ void ARealityCharacter::SetCanShootTrue()
 	bCanShoot = true;
 }
 
+void ARealityCharacter::ChangeFieldofView()
+{
+	if (Reverse == false && FirstPersonCameraComponent->FieldOfView < 120)
+	{
+		FirstPersonCameraComponent->FieldOfView += 1;
+		if (FirstPersonCameraComponent->FieldOfView >= 120)
+		{
+			Reverse = true;
+		}
+	}
+	
+	if (Reverse && FirstPersonCameraComponent->FieldOfView > 90)
+	{
+			FirstPersonCameraComponent->FieldOfView -= 1;
+			if (FirstPersonCameraComponent->FieldOfView <= 90)
+			{
+				GetWorldTimerManager().ClearTimer(FOVTimer);
+				Reverse = false;
+			}
+		
+	}
+}
+
+
+
 void ARealityCharacter::OnFire()
 {
 	Shoot();
@@ -473,9 +551,16 @@ void ARealityCharacter::Landed(const FHitResult & Hit)
 	const FVector disVec = Hit.ImpactPoint;
 	isOnFloor = true;
 
+	if (LandSound != nullptr)
+	{
+		UGameplayStatics::PlaySound2D(this, LandSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+	}
+
+	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(MyShake, 1.0f);
+
 	GetWorld()->GetTimerManager().SetTimer(Handler, this, &ARealityCharacter::BoolSwitch, 0.5f, true);
 
-	
+	GetWorld()->GetTimerManager().SetTimer(JumpMeterHandle, this, &ARealityCharacter::JumpMeter, 0.05f, true);
 	
 	if (GEngine)
 	{
@@ -562,14 +647,8 @@ void ARealityCharacter::changeRadius()
 {
 	if (Radius >= 2000)
 	{
-		GetWorldTimerManager().ClearTimer(HandleTemp);
 		
-		Color.R = 0;
-		Color.G = 1;
-		Color.B = 0;
-		Color.A = 1;
-
-		DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
+		GetWorldTimerManager().ClearTimer(HandleTemp);
 	}
 	else
 	{
@@ -577,20 +656,38 @@ void ARealityCharacter::changeRadius()
 
 		FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
 
+		
+
+	
+
 	}
 	
+	
+}
+
+void ARealityCharacter::ShowScore()
+{
+	if (wMainMenu) 
+	{
+		APlayerController* Controller = Cast<APlayerController>(GetController());
+		
+		MyMainMenu = CreateWidget<UUserWidget>(Controller, wMainMenu);
+
+		
+		if (MyMainMenu)
+		{
+			//let add it to the view port
+			MyMainMenu->AddToViewport();
+		}
+
+		
+	}
+
 }
 
 void ARealityCharacter::StartGame()
 {
-	
-	Color.R = 0;
-	Color.G = 0;
-	Color.B = 0;
-	Color.A = 0;
-
 	DynMaterial = UMaterialInstanceDynamic::Create(Material, nullptr, FName(TEXT("Base Material Dynamic")));
-	DynMaterial->SetVectorParameterValue(FName("MaterialColour"), Color);
 	DynMaterial->SetScalarParameterValue(FName("Radius"), 0);
 
 	FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);

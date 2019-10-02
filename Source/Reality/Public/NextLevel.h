@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "RealityCharacter.h"
 #include "NextLevel.generated.h"
 
 UCLASS()
@@ -30,7 +31,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		FName Level = "FirstpersonExampleMap";
+
+	UPROPERTY()
+		ARealityCharacter* Character;
 	
 	UFUNCTION()
 		void OnOverlapBegin(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	FTimerHandle Handle;
+
+	void OpenLevel();
 };
