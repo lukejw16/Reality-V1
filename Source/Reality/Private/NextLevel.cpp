@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "NextLevel.h"
+#include "RealityGameMode.h"
 
 
 // Sets default values
@@ -28,6 +29,25 @@ void ANextLevel::Tick(float DeltaTime)
 }
 
 void ANextLevel::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	Character = Cast<ARealityCharacter>(OtherActor);
+	ARealityGameMode* GameMode = Cast<ARealityGameMode>(GetWorld()->GetAuthGameMode());
+	if (Character != nullptr)
+	{
+		Character->ShowScore();
+		if (GameMode != nullptr)
+		{
+			
+			GetWorldTimerManager().ClearTimer(GameMode->PlayerTime);
+			GetWorld()->GetTimerManager().SetTimer(Handle, this, &ANextLevel::OpenLevel, 2.0f, false);
+				
+				
+		}
+	}
+	
+}
+
+void ANextLevel::OpenLevel()
 {
 	UGameplayStatics::OpenLevel(GetWorld(), Level);
 }

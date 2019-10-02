@@ -14,4 +14,25 @@ ARealityGameMode::ARealityGameMode()
 
 	// use our custom HUD class
 	HUDClass = ARealityHUD::StaticClass();
+
+	
+}
+
+void ARealityGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	GetWorld()->GetTimerManager().SetTimer(PlayerTime, this, &ARealityGameMode::PlayerTimer, 1.0f, true);
+}
+
+void ARealityGameMode::PlayerTimer()
+{
+	if (Seconds < 59)
+	{
+		Seconds++;
+	}
+	if (Seconds == 59)
+	{
+		Seconds = 0;
+		Minutes += 1;
+	}
 }

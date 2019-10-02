@@ -47,4 +47,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		bool bIsPlus;
+
+	bool Reverse;
+
+	FTimerHandle FOVTimer;
+
+	void ChangeFieldOfView();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* BoostSound;
 };

@@ -83,6 +83,16 @@ public:
 	class USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* GunShot;
+
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		class USoundBase* LandSound;
+
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -108,6 +118,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UCameraShake> MyShake;
+
+	void SaveGame();
+
+	void LoadGame();
 
 	int loopint;
 
@@ -171,6 +185,8 @@ public:
 
 	FTimerHandle ShootTimer;
 
+	FTimerHandle FOVTimer;
+
 	bool Right;
 
 	bool Left;
@@ -187,6 +203,11 @@ public:
 	
 	int WeaponN;
 	
+	void ChangeFieldofView();
+
+	bool Reverse;
+
+	bool stop;
 
 protected:
 	
@@ -284,5 +305,12 @@ public:
 
 	float lerp;
 	float Afloat;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> wMainMenu;
+
+	UUserWidget* MyMainMenu;
+
+	void ShowScore();
 };
 
