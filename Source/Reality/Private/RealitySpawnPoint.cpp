@@ -36,7 +36,9 @@ void ARealitySpawnPoint::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, 
 
 void ARealitySpawnPoint::UpdateLocation()
 {
+	Character->bCheckpoint = true;
 	LocationArray.Add(GetActorLocation());
 	Character->SpawnLocation = GetActorLocation();
+	Character->SpawnRotation = Character->GetActorRotation();
 }
 

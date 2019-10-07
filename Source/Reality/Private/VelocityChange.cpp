@@ -41,17 +41,14 @@ void AVelocityChange::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AAc
 	{
 		const FVector ForwardDir = Character->GetRootComponent()->GetForwardVector();
 		const FVector ForwardWithUp = (Character->GetRootComponent()->GetUpVector());
-		const FVector ForwardWithZ = (ForwardDir + FVector(0, 0, 1));
+		const FVector ForwardWithZ = (ForwardDir + FVector(0, 0, 10));
 		const FVector Velocity = Character->GetCharacterMovement()->Velocity;
 		const FVector MinVelocity(300.0f, 300.0f, 300.0f);
 		float speed = Velocity.Size();
+		float speedZ = Velocity.Z;
 		FString TheFloatStr = FString::SanitizeFloat(speed);
 		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatStr);
 
-		if (BoostSound != nullptr)
-		{
-			UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
-		}
 		
 
 		if (bIsForward == true )
@@ -59,8 +56,35 @@ void AVelocityChange::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AAc
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
 			Character->GetCharacterMovement()->Velocity = ForwardDir * SpeedChange;
-			GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
 			
+		}
+
+		if (bIsForward == true && speed < 20)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
+			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
+			Character->GetCharacterMovement()->Velocity = ForwardDir * SpeedChange;
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
+
 		}
 
 		if (bIsPlus == true && bIsForward == false && speed < 3000)
@@ -68,36 +92,75 @@ void AVelocityChange::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AAc
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
 			Character->GetCharacterMovement()->Velocity += ForwardDir * SpeedChange;
-			GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
 			
 		}
 
+		
 		if (bIsPlus == true && bIsForward == false && speed > 5000)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
 			Character->GetCharacterMovement()->Velocity = ForwardDir * SpeedChange;
-			GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
-			
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
 		}
 
 		if (bIsForward == false && bIsPlus == false)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
-			Character->GetCharacterMovement()->Velocity += ForwardWithUp * SpeedChange;
-			GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);;
+			Character->GetCharacterMovement()->Velocity = ForwardWithUp * SpeedChange;
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
 			
 		}
 
-		if (bIsForward == false && bIsPlus == false && speed > 500)
+		if (bIsForward == false && bIsPlus == false && speed < 500)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Overlap"));
 			FMath::Clamp(SpeedChange, 600.0f, 2000.0f);
 			Character->GetCharacterMovement()->Velocity = ForwardWithUp * SpeedChange;
-			GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+			if (Character->inAir)
+			{
+				GetWorld()->GetTimerManager().SetTimer(Character->FOVTimer, this, &AVelocityChange::ChangeFieldOfView, 0.02f, true);
+
+				if (BoostSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(this, BoostSound, 0.5f, 1.0f, 0.0f, nullptr, nullptr);
+				}
+
+			}
 			
+
 		}
+
+		
 	}
 	
 	
