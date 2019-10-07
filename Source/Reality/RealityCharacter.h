@@ -113,10 +113,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		TEnumAsByte<Weapons> WeaponType;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Gameplay)
 		UMaterialInterface* Material;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Gameplay)
 		TSubclassOf<UCameraShake> MyShake;
 
 	void SaveGame();
@@ -138,14 +138,17 @@ public:
 	bool bHasKey;
 
 	bool bCanShoot;
-
+	
 	float WalkSpeed;
 
 	float VelocityFloat;
 
 	FVector Velocity;
-		
+	
+	UPROPERTY(BlueprintReadWrite)
 	FVector SpawnLocation;
+	UPROPERTY(BlueprintReadWrite)
+	FRotator SpawnRotation;
 
 	int TimerCounter;
 
@@ -256,8 +259,7 @@ protected:
 
 	
 
-	UFUNCTION()
-		void OnOverlapEnd(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 
 protected:
 	// APawn interface
@@ -296,7 +298,7 @@ public:
 
 	UMaterialInstanceDynamic* DynMaterial;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Gameplay)
 	UDecalComponent* Decal;
 
 	FTimerHandle HandleTemp;
@@ -306,11 +308,24 @@ public:
 	float lerp;
 	float Afloat;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UPROPERTY(BlueprintReadWrite)
+	bool bMainMenu;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bCheckpoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		TSubclassOf<class UUserWidget> wMainMenu;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		TSubclassOf<class UUserWidget> wPauseMenu;
 
 	UUserWidget* MyMainMenu;
 
+	UUserWidget* MyPauseMenu;
+
 	void ShowScore();
+
+	void PauseMenu();
 };
 

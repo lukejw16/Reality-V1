@@ -88,7 +88,7 @@ ARealityCharacter::ARealityCharacter()
 	
 	Timer = 1.5f;
 	
-	WalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	WalkSpeed = 800;
 	EnergyMeter = 0.5f;
 	isOnFloor = true;
 	Right = false;
@@ -98,7 +98,7 @@ ARealityCharacter::ARealityCharacter()
 	bCanShoot = true;
 	bCanMove = true;
 
-	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ARealityCharacter::OnOverlapEnd);
+	
 }
 
 void ARealityCharacter::Tick(float DeltaSeconds)
@@ -394,7 +394,7 @@ void ARealityCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &ARealityCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARealityCharacter::MoveRight);
-
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ARealityCharacter::PauseMenu);
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
@@ -465,7 +465,7 @@ void ARealityCharacter::DirectionImpulse()
 	}
 	if (inAir == true && Right == false && Left == false && Forward == false && Back == false)
 	{
-		GetCharacterMovement()->Velocity += UpVec * 1000.0f;
+		GetCharacterMovement()->Velocity += UpVec * 700.0f;
 	}
 	
 
@@ -483,6 +483,7 @@ void ARealityCharacter::SpeedValue()
 {
 	FString TheFloatStr = FString::SanitizeFloat(GetCharacterMovement()->Velocity.Size());
 	GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatStr);
+	
 }
 
 void ARealityCharacter::SetCanShootTrue()
@@ -630,6 +631,7 @@ void ARealityCharacter::Respawn()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
 	GetWorld()->GetTimerManager().SetTimer(CanMoveReset, this, &ARealityCharacter::CanMove, 1.0f, false);
 	SetActorLocation(SpawnLocation);
+	SetActorRotation(SpawnRotation);
 	EnergyMeter = 1.0f;
 	if (GetCharacterMovement()->MaxWalkSpeed > WalkSpeed)
 	{
@@ -657,9 +659,6 @@ void ARealityCharacter::changeRadius()
 		FirstPersonCameraComponent->AddOrUpdateBlendable(DynMaterial);
 
 		
-
-	
-
 	}
 	
 	
@@ -667,22 +666,42 @@ void ARealityCharacter::changeRadius()
 
 void ARealityCharacter::ShowScore()
 {
-	if (wMainMenu) 
+	if (wMainMenu)
 	{
 		APlayerController* Controller = Cast<APlayerController>(GetController());
-		
+
 		MyMainMenu = CreateWidget<UUserWidget>(Controller, wMainMenu);
 
-		
+
 		if (MyMainMenu)
 		{
 			//let add it to the view port
 			MyMainMenu->AddToViewport();
 		}
 
-		
+
 	}
 
+}
+
+void ARealityCharacter::PauseMenu()
+{
+	
+	if (wPauseMenu && bMainMenu == false)
+	{
+		APlayerController* Controller = Cast<APlayerController>(GetController());
+
+		MyPauseMenu = CreateWidget<UUserWidget>(Controller, wPauseMenu);
+
+
+		if (MyPauseMenu)
+		{
+			//let add it to the view port
+			MyPauseMenu->AddToViewport();
+		}
+
+
+	}
 }
 
 void ARealityCharacter::StartGame()
@@ -699,9 +718,7 @@ void ARealityCharacter::TimerReset()
 	{
 		
 		GetCharacterMovement()->AirControl = 0.5f;
-		GetCharacterMovement()->BrakingFrictionFactor = 2.0f;
-		GetCharacterMovement()->GroundFriction = 8.0f;
-		GetCharacterMovement()->GravityScale = 1.0f;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Reset"));
 		
@@ -730,7 +747,7 @@ void ARealityCharacter::BoolSwitch()
 			float WalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 			if (WalkSpeed < 2000.0f)
 			{
-				FMath::Clamp(GetCharacterMovement()->MaxWalkSpeed += 50.0f, 600.0f, 2000.0f);
+				FMath::Clamp(GetCharacterMovement()->MaxWalkSpeed += 50.0f, 800.0f, 2000.0f);
 			}
 			
 
@@ -748,7 +765,7 @@ void ARealityCharacter::BoolSwitch()
 
 			
 			GetWorldTimerManager().ClearTimer(Handler);
-			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+			
 			
 			
 			
@@ -757,10 +774,7 @@ void ARealityCharacter::BoolSwitch()
 	
 }
 
-void ARealityCharacter::OnOverlapEnd(UPrimitiveComponent * OverlapComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-	
-}
+
 
 
 

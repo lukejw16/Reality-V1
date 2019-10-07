@@ -102,11 +102,11 @@ void ARealitySurf::StartGame()
 
 void ARealitySurf::CheckEndOverlap()
 {
-	if (PlayerTime >= 1.0f && Character->GetCharacterMovement()->Velocity.X >= 300.0f)
+	if (PlayerTime >= 0.8f && Character->GetCharacterMovement()->Velocity.X >= 200.0f)
 	{
 		const FVector UpDir = Character->GetActorForwardVector();
 
-		Character->GetCharacterMovement()->Velocity += UpDir * 600.0f;
+		Character->GetCharacterMovement()->Velocity += UpDir * 800.0f;
 		PlayerTime = 0.0f;
 	}
 	else

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "NextLevel.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "RealityGameMode.h"
 
 
@@ -37,7 +38,8 @@ void ANextLevel::OnOverlapBegin(UPrimitiveComponent * OverlapComponent, AActor *
 		Character->ShowScore();
 		if (GameMode != nullptr)
 		{
-			
+			Character->GetCharacterMovement()->StopMovementImmediately();
+			Character->bSafeSpot = true;
 			GetWorldTimerManager().ClearTimer(GameMode->PlayerTime);
 			GetWorld()->GetTimerManager().SetTimer(Handle, this, &ANextLevel::OpenLevel, 2.0f, false);
 				
