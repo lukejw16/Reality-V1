@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MyActor.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "ConstructorHelpers.h"
 
 // Sets default values
 AMyActor::AMyActor()
@@ -17,6 +18,8 @@ AMyActor::AMyActor()
 	
 	index = 0;
 	
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> PS(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"));
+	PSC = PS.Object;
 	
 }
 
@@ -159,5 +162,12 @@ void AMyActor::SelectMovement()
 	}
 
 
+}
+
+void AMyActor::SpawnEmitter()
+{
+	FVector Size (5.0f, 5.0f, 5.0f);
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PSC, GetActorLocation(), GetActorRotation(), Size);
 }
 

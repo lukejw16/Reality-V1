@@ -59,7 +59,7 @@ void AAI_Controller::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	AAICharacter* Character = Cast<AAICharacter>(GetPawn());
-
+	
 	if (DistanceToPlayer > AISightRadius)
 	{
 		
@@ -73,13 +73,13 @@ void AAI_Controller::Tick(float DeltaSeconds)
 		MoveToActor(Character->NextWaypoint, 5.0f);
 		
 	}
-	else if (bPlayerIsDetected == true)
+	 if (bPlayerIsDetected == true)
 	{
 		ARealityCharacter* Player = Cast<ARealityCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		Character->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 		
 		
-		MoveToActor(Player, 600.0f);
+		MoveToActor(Player, 200.0f);
 
 	}	
 	if (Damaged == true)
@@ -100,15 +100,20 @@ FRotator AAI_Controller::GetControlRotation() const
 
 void AAI_Controller::OnPawnDetected(TArray<AActor*> DetectedPawn)
 {
+	ARealityCharacter* Player = Cast<ARealityCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 	for (size_t i = 0; i < DetectedPawn.Num(); i++)
 	{
 		
 		DistanceToPlayer = GetPawn()->GetDistanceTo(DetectedPawn[i]);
 		UE_LOG(LogTemp, Warning, TEXT("Distance: %f"), DistanceToPlayer);
 		GetWorld()->GetTimerManager().SetTimer(Timer, this, &AAI_Controller::Shoot, WeaponDelay, true);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("PlayerDecteted"));
+		bPlayerIsDetected = true;
+				
 	}
 	
-	bPlayerIsDetected = true;
+	
 }
 
 void AAI_Controller::Shoot()
